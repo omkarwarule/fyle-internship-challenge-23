@@ -1,0 +1,92 @@
+<!-- take input -->
+<div class="search-container">
+   
+    <div class="flex items-center justify-center mt-8" [style.margin-left]="'10px'">
+      <input type="text" id="username" [(ngModel)]="username" placeholder="Search GitHub user..." class="border border-gray-300 rounded-l-md py-2 px-4 w-48 focus:outline-none focus:ring-2 focus:ring-blue-500">
+      <button (click)="fetchRepositories()" (click)="searchRepositories()" class="bg-blue-500 text-white py-2 px-4 rounded-r-md">Search</button>
+    </div>
+  </div>
+  <div *ngIf="userNotFound">
+      <div class="empty-state">
+      <h2>User not found</h2>
+      
+    </div>
+  </div>
+  <ul *ngIf=" !fetchLoading  && repositories.length >0" class="repo-list">
+    <li *ngFor="let repo of repositories" class="repo-item">
+      <a [href]="repo.html_url" target="_blank">{{ repo.login }}</a>
+    </li>
+   
+  </ul>
+<!-- profile details -->
+<div class="profile-container" *ngIf="repositories" [style.margin-left]="'50px'">
+  
+    <div class="profile" >
+      <img *ngIf="!fetchLoading || repositories.length === 0" class="skeleton-loader" [src]="repositories.avatar_url" alt="Profile Image"  class="profile-image">
+      <div [style.margin-top]="'50px'"  >
+        <p  *ngIf="repositories?.login"><strong> {{ repositories.login }} </strong> <br> </p>
+        <p *ngIf="repositories.bio">{{ repositories?.bio }}</p >
+        <p *ngIf="repositories.location"> <a href="https://maps.google.com/?q={{ repositories.location }}">{{ repositories.location }}</a></p>
+        <p *ngIf="repositories.twitter_username">twitter: <a href="https://twitter.com/{{ repositories.twitter_username }}">{{ repositories.twitter_username }}</a></p>
+        <p *ngIf="repositories.email">Email: {{repositories?.email }}</p>
+      </div>
+    
+  </div>
+    <div [style.margin-top]="'30px'">
+      <p *ngIf="repositories?.blog">Website:  <a href="{{ repositories?.blog }}" target="_blank">{{ repositories.blog }}</a></p>
+
+    </div>
+</div>
+<!-- input number of repos -->
+<div class="flex items-center justify-center mt-8" *ngIf="project.length > 0">
+  <label class="mr-2">Enter the number of repositories at single time: </label>
+  <select #refv class="border border-gray-300 rounded-md py-2 px-4 mr-2 focus:outline-none focus:ring-2 focus:ring-blue-500" [(ngModel)]="selectedOption">
+    <option *ngFor="let option of dropdownOptions" [value]="option">{{ option }}</option>
+  </select>
+  <button (click)="onSubmitt(refv.value)" class="btn btn-primary" style="margin-left: 10px;">Apply</button>
+</div>
+
+<!-- repositories -->
+<div *ngIf="project.length > 0" class="text-center">
+  <h2 class="text-2xl font-bold mb-4">Repositories </h2>
+  <div   class="grid grid-cols-2 gap-4">
+    <ng-container  *ngFor="let repoChunk of projectChunks; let i = index">
+      <ng-container *ngIf="selectedPage === i">
+        <ng-container  *ngFor="let repo of repoChunk">
+          <div  class="repository-card">
+            <h3 [style.color]="'blue'">
+              <a [href]="repo.html_url" target="_blank" rel="noopener noreferrer">{{ repo.name }}</a>
+            </h3>
+            <p class="text-gray-700">Description:{{ repo.description }}</p>
+            <p class="text-gray-700">Language:</p>
+            <button *ngIf="repo?.language" class="btn btn-primary">
+              {{ repo.language }}
+            </button>
+          </div>
+         
+          
+        </ng-container>
+      </ng-container>
+    </ng-container>
+  </div>
+  <div class="flex justify-center mt-8">
+    <button (click)="prevPage()" class="btn btn-primary">
+      Prev
+    </button>
+    <ng-container  *ngFor="let page of visiblePages; let i = index">
+      <span appResponse (click)="changePage(page)" 
+            [style.bg-blue-500]="selectedPage === page" 
+            [class.text-white]="selectedPage === page"
+            class="cursor-pointer mx-2 px-4 py-2 rounded-full 
+                   hover:bg-blue-600 transition-colors duration-300">
+        {{ page }}
+      </span>
+    </ng-container>
+    <button (click)="nextPage()" class="btn btn-primary">
+      Next
+    </button>
+</div>
+
+</div>
+
+
